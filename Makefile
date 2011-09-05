@@ -12,7 +12,7 @@ TESTS = circular_buffer_test trivial_allocator_test
 all: ${TESTS}
 
 clean:
-	rm -f $(TESTS) *.o
+	rm -f $(TESTS) *.o *.gcda *.gcno *.gcov
 
 circular_buffer_test.o:  circular_buffer_test.cc $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c circular_buffer_test.cc
