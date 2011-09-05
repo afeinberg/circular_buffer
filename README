@@ -1,0 +1,3 @@
+Wrote this to play with placement new[1] and allocators in C++.
+
+[1] http://blogs.msdn.com/b/jaredpar/archive/2007/10/16/c-new-operator-and-placement-new.aspx
