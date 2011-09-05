@@ -1,5 +1,3 @@
-#include <boost/shared_ptr.hpp>
-
 #include "circular_buffer.h"
 #include "trivial_allocator.h"
 #include "forwarding_allocator.h"
@@ -17,11 +15,11 @@ using af::Person;
 
 typedef ForwardingAllocator<Person, CountingAllocator<Person, std::allocator<Person> > > DelegateAlloc;
 
-boost::shared_ptr<DelegateAlloc> CreateDelegateAlloc() {
-    boost::shared_ptr<std::allocator<Person> > p_alloc(new std::allocator<Person>());
-    boost::shared_ptr<CountingAllocator<Person, std::allocator<Person> > >
+std::shared_ptr<DelegateAlloc> CreateDelegateAlloc() {
+    std::shared_ptr<std::allocator<Person> > p_alloc(new std::allocator<Person>());
+    std::shared_ptr<CountingAllocator<Person, std::allocator<Person> > >
             p_counting_alloc(new CountingAllocator<Person, std::allocator<Person> >(p_alloc));
-    return boost::shared_ptr<DelegateAlloc>(new DelegateAlloc(p_counting_alloc));
+    return std::shared_ptr<DelegateAlloc>(new DelegateAlloc(p_counting_alloc));
 }
     
 class CircularBufferTest: public ::testing::Test {
@@ -69,7 +67,7 @@ class CircularBufferTest: public ::testing::Test {
     CircularBuffer<Person> people_;
     CircularBuffer<Person, TrivialAllocator<Person> > custom_alloc_;
     
-    boost::shared_ptr<DelegateAlloc> delegate_alloc_;
+    std::shared_ptr<DelegateAlloc> delegate_alloc_;
     CircularBuffer<Person, DelegateAlloc> counting_buffer_;
 };
 

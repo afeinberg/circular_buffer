@@ -12,7 +12,7 @@ class CountingAllocator: public ForwardingAllocator<T, Alloc> {
     typedef ForwardingAllocator<T, Alloc> inherit;
   public:    
     
-    CountingAllocator(boost::shared_ptr<Alloc> p_alloc)
+    CountingAllocator(std::shared_ptr<Alloc> p_alloc)
             :inherit(p_alloc),
              num_allocations_(0),
              num_deallocations_(0),
@@ -41,7 +41,7 @@ class CountingAllocator: public ForwardingAllocator<T, Alloc> {
         typedef CountingAllocator<U, Alloc> other;
     };
 
-    boost::shared_ptr<Alloc> GetAlloc() const {
+    std::shared_ptr<Alloc> GetAlloc() const {
         return inherit::GetAlloc();
     }
     

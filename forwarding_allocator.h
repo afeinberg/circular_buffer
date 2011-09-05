@@ -5,7 +5,7 @@
 
 #include <cstdlib>
 #include <climits>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace af {
 
@@ -22,11 +22,11 @@ class ForwardingAllocator {
     typedef T& reference;
     typedef const T& const_reference;
 
-    ForwardingAllocator(boost::shared_ptr<Alloc> p_alloc)
+    ForwardingAllocator(std::shared_ptr<Alloc> p_alloc)
             :p_alloc_(p_alloc) {
     }
 
-    boost::shared_ptr<Alloc> GetAlloc() const {
+    std::shared_ptr<Alloc> GetAlloc() const {
         return p_alloc_;
     }
     
@@ -75,7 +75,7 @@ class ForwardingAllocator {
     }
     
   private:
-    boost::shared_ptr<Alloc> p_alloc_;
+    std::shared_ptr<Alloc> p_alloc_;
 };
 
 }

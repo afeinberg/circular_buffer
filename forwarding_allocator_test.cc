@@ -16,7 +16,7 @@ class ForwardingAllocatorTest: public ::testing::Test {
     typedef ForwardingAllocator<Person, std::allocator<Person>> MyAllocator;
 
     ForwardingAllocatorTest()
-            :alloc_(boost::shared_ptr<std::allocator<Person> >(new std::allocator<Person>)) {
+            :alloc_(std::shared_ptr<std::allocator<Person> >(new std::allocator<Person>)) {
     }
     
     MyAllocator alloc_;    
