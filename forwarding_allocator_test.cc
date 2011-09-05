@@ -11,19 +11,21 @@ namespace {
 using af::ForwardingAllocator;
 using af::Person;
 
+typedef std::allocator<Person> StdAlloc;
+typedef ForwardingAllocator<Person, StdAlloc> ForwardingAlloc;
+
 class ForwardingAllocatorTest: public ::testing::Test {
   protected:
-    typedef ForwardingAllocator<Person, std::allocator<Person>> MyAllocator;
 
     ForwardingAllocatorTest()
-            :alloc_(std::shared_ptr<std::allocator<Person> >(new std::allocator<Person>)) {
+            :alloc_(std::shared_ptr<StdAlloc>(new StdAlloc)) {
     }
     
-    MyAllocator alloc_;    
+    ForwardingAlloc alloc_;    
 };
 
 TEST_F(ForwardingAllocatorTest, VectorTest) {
-    std::vector<Person, MyAllocator> vec(alloc_);
+    std::vector<Person, ForwardingAlloc> vec(alloc_);
     Person doe(21, "John Doe");
     vec.push_back(doe);
     EXPECT_EQ(doe, vec[0]);

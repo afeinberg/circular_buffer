@@ -13,12 +13,13 @@ using af::ForwardingAllocator;
 using af::CountingAllocator;
 using af::Person;
 
-typedef ForwardingAllocator<Person, CountingAllocator<Person, std::allocator<Person> > > DelegateAlloc;
+typedef std::allocator<Person> StdAlloc;
+typedef CountingAllocator<Person, StdAlloc> CountingAlloc;
+typedef ForwardingAllocator<Person, CountingAlloc> DelegateAlloc;
 
 std::shared_ptr<DelegateAlloc> CreateDelegateAlloc() {
-    std::shared_ptr<std::allocator<Person> > p_alloc(new std::allocator<Person>());
-    std::shared_ptr<CountingAllocator<Person, std::allocator<Person> > >
-            p_counting_alloc(new CountingAllocator<Person, std::allocator<Person> >(p_alloc));
+    std::shared_ptr<StdAlloc> p_alloc(new StdAlloc());
+    std::shared_ptr<CountingAlloc> p_counting_alloc(new CountingAlloc(p_alloc));
     return std::shared_ptr<DelegateAlloc>(new DelegateAlloc(p_counting_alloc));
 }
     
@@ -26,8 +27,7 @@ class CircularBufferTest: public ::testing::Test {
   protected:
     
     typedef unsigned char byte;
-    
-  
+      
     enum { kCapacity = 16, kBuffSize = 4096 };
 
     CircularBufferTest()
@@ -57,7 +57,7 @@ class CircularBufferTest: public ::testing::Test {
         std::free(buffer_);
     }
 
-    CountingAllocator<Person, std::allocator<Person> >& GetCountingAlloc() const {
+    CountingAlloc& GetCountingAlloc() const {
         return *(delegate_alloc_->GetAlloc());
     }
                       
