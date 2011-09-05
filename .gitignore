@@ -1,0 +1,9 @@
+trivial_allocator_test
+circular_buffer_test
+*.o
+*.gcno
+*.gcda
+*.gcov
+*~
+*#
+.#*
