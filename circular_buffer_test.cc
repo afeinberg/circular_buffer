@@ -1,5 +1,9 @@
+#include <boost/shared_ptr.hpp>
+
 #include "circular_buffer.h"
 #include "trivial_allocator.h"
+#include "forwarding_allocator.h"
+#include "counting_allocator.h"
 #include "test_common.h"
 #include "gtest/gtest.h"
 
@@ -7,12 +11,25 @@ namespace {
 
 using af::CircularBuffer;
 using af::TrivialAllocator;
+using af::ForwardingAllocator;
+using af::CountingAllocator;
 using af::Person;
 
+typedef ForwardingAllocator<Person, CountingAllocator<Person, std::allocator<Person> > > DelegateAlloc;
+
+boost::shared_ptr<DelegateAlloc> CreateDelegateAlloc() {
+    boost::shared_ptr<std::allocator<Person> > p_alloc(new std::allocator<Person>());
+    boost::shared_ptr<CountingAllocator<Person, std::allocator<Person> > >
+            p_counting_alloc(new CountingAllocator<Person, std::allocator<Person> >(p_alloc));
+    return boost::shared_ptr<DelegateAlloc>(new DelegateAlloc(p_counting_alloc));
+}
+    
 class CircularBufferTest: public ::testing::Test {
   protected:
+    
     typedef unsigned char byte;
     
+  
     enum { kCapacity = 16, kBuffSize = 4096 };
 
     CircularBufferTest()
@@ -22,7 +39,11 @@ class CircularBufferTest: public ::testing::Test {
              people_(kCapacity),
              custom_alloc_(kCapacity,
                            false,
-                           TrivialAllocator<Person>(kBuffSize, buffer_)) {
+                           TrivialAllocator<Person>(kBuffSize, buffer_)),
+             delegate_alloc_(CreateDelegateAlloc()),
+             counting_buffer_(kCapacity,
+                              false,
+                              *(delegate_alloc_)) {
     }
 
     virtual void SetUp() {
@@ -38,14 +59,28 @@ class CircularBufferTest: public ::testing::Test {
         std::free(buffer_);
     }
 
+    CountingAllocator<Person, std::allocator<Person> >& GetCountingAlloc() const {
+        return *(delegate_alloc_->GetAlloc());
+    }
+                      
     byte* buffer_;
     CircularBuffer<int> integers_;
     CircularBuffer<int> overflow_;
     CircularBuffer<Person> people_;
     CircularBuffer<Person, TrivialAllocator<Person> > custom_alloc_;
+    
+    boost::shared_ptr<DelegateAlloc> delegate_alloc_;
+    CircularBuffer<Person, DelegateAlloc> counting_buffer_;
 };
 
 } // namespace
+
+TEST_F(CircularBufferTest, TestNumAllocations) {
+    Person doe(21, "John Doe");
+    EXPECT_TRUE(counting_buffer_.PushBack(doe));
+    EXPECT_EQ(1u, GetCountingAlloc().GetNumAllocations());
+    EXPECT_EQ(0u, GetCountingAlloc().GetNumDeallocations());
+}
 
 TEST_F(CircularBufferTest, GetCapacity) {
     EXPECT_EQ(kCapacity, integers_.GetCapacity());

@@ -6,8 +6,8 @@ LDFLAGS = -lpthread -lgcov
 GTEST_DIR = ../gtest-1.6.0-svn
 GTEST_LIBS = ${GTEST_DIR}/libgtest.a
 
-HEADERS = circular_buffer.h trivial_allocator.h test_common.h
-TESTS = circular_buffer_test trivial_allocator_test
+HEADERS = circular_buffer.h trivial_allocator.h forwarding_allocator.h test_common.h counting_allocator.h
+TESTS = circular_buffer_test trivial_allocator_test forwarding_allocator_test
 
 all: ${TESTS}
 
@@ -26,6 +26,13 @@ trivial_allocator_test.o: trivial_allocator_test.cc $(HEADERS)
 trivial_allocator_test: trivial_allocator_test.o $(GTEST_LIBS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
+forwarding_allocator_test.o: forwarding_allocator_test.cc $(HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c forwarding_allocator_test.cc
+
+forwarding_allocator_test: forwarding_allocator_test.o $(GTEST_LIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
 test: ${TESTS}
 	./trivial_allocator_test
 	./circular_buffer_test
+	./forwarding_allocator_test
